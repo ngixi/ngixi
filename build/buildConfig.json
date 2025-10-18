@@ -1,0 +1,17 @@
+{
+    "version": "0.0.1",
+    "deps": {
+        "wasmtime": {
+            "defaultVersion": "v37.0.2",
+            "gitUrl": "https://github.com/bytecodealliance/wasmtime.git"
+        },
+        "ngixi.zigwin32gen": {
+            "defaultVersion": "v1.0.1",
+            "gitUrl": "git@github.com:ngixi/ngixi-zigwin32gen.git"
+        },
+        "google/dawn": {
+            "defaultVersion": "v20251015.200420",
+            "gitUrl": "git@github.com:google/dawn.git"
+        }
+    }
+}
