@@ -5,8 +5,8 @@ import {
   cloneGitRepository,
   ensureDirectory,
   runCommand,
-} from "./utilities.js";
-import { scopedLogger } from "./logging.js";
+} from "../utils/index.js";
+import { scopedLogger } from "../logging.js";
 
 const log = scopedLogger("ffmpeg");
 

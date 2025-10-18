@@ -7,8 +7,8 @@ import {
   runCargo,
   runCommand,
   updateGitSubmodules,
-} from "./utilities.js";
-import { scopedLogger } from "./logging.js";
+} from "../utils/index.js";
+import { scopedLogger } from "../logging.js";
 
 const log = scopedLogger("wasmtime");
 
@@ -81,6 +81,9 @@ export async function buildWasmtime(options) {
 
   log.info({ ref: checkoutResult.ref, refType: checkoutResult.type }, "checked out Wasmtime reference");
 
+  // Clean any stale build artifacts from previous builds in different directories
+  cleanStaleBuildArtifacts(destination);
+  
   buildWasmtimeRustCAPI(destination);
   verifyRustArtifacts(destination);
   configureWasmtimeCAPI(destination, artifactsRoot);
@@ -97,6 +100,16 @@ function buildWasmtimeRustCAPI(cwd) {
   if (!result.ok) fail("Rust C API build", result);
 }
 
+function cleanStaleBuildArtifacts(cwd) {
+  const cmakeBuildDir = path.join(cwd, "target", "c-api");
+  
+  if (fs.existsSync(cmakeBuildDir)) {
+    log.info({ cmakeBuildDir }, "cleaning stale CMake build directory to avoid path conflicts");
+    fs.rmSync(cmakeBuildDir, { recursive: true, force: true });
+    log.info("stale build artifacts cleaned");
+  }
+}
+
 function verifyRustArtifacts(cwd) {
   const dll = path.join(cwd, "target", "release", "wasmtime.dll");
   const lib = path.join(cwd, "target", "release", "wasmtime.lib");
@@ -109,8 +122,14 @@ function verifyRustArtifacts(cwd) {
 
 function configureWasmtimeCAPI(cwd, installPrefix) {
   log.info({ installPrefix }, "configuring C API with CMake (cmake configure)");
+  const args = [
+    "-S", "crates/c-api", 
+    "-B", "target/c-api", 
+    `-DCMAKE_INSTALL_PREFIX=${installPrefix}`,
+    "-G", "Ninja"  // Use Ninja generator for faster builds
+  ];
   runCMakeOrThrow(
-    ["-S", "crates/c-api", "-B", "target/c-api", "--install-prefix", installPrefix],
+    args,
     cwd,
     "Failed to configure Wasmtime C API with CMake"
   );
@@ -146,8 +165,14 @@ function copyRuntimeArtifacts(cwd, installPrefix) {
 }
 
 function runCMakeOrThrow(args, cwd, msg) {
+  // First try with inherit to show output in real-time
   const result = runCommand("cmake", args, { cwd, stdio: "inherit" });
-  if (!result.ok) fail(msg, result);
+  if (!result.ok) {
+    // If it fails, run again with pipe to capture output for error reporting
+    log.warn("CMake command failed, re-running to capture output...");
+    const captureResult = runCommand("cmake", args, { cwd, stdio: "pipe" });
+    fail(msg, captureResult);
+  }
 }
 
 function fail(label, result) {

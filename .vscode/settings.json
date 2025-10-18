@@ -37,7 +37,9 @@
   "clangd.arguments": [
     "--compile-commands-dir=${workspaceFolder}/build",
     "-I${workspaceFolder}/build/artifacts/wasmtime/include",
-    "-I${workspaceFolder}/build/artifacts/wasmtime/include/wasmtime"
+    "-I${workspaceFolder}/build/artifacts/wasmtime/include/wasmtime",
+    "-I${workspaceFolder}/build/artifacts/dawn/include",
+    "-I${workspaceFolder}/build/artifacts/dawn/include/dawn",    
   ],
   "logViewer.watch": [
     {

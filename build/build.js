@@ -6,11 +6,11 @@ import { fileURLToPath } from 'node:url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { AggregateToolError, ensureDirectory, ensureTooling, ensurePython3, checkCPUArchitecture, checkWindowsSDK, checkMSVC } from './scripts/utilities.js';
-import { buildWasmtime } from './scripts/buildWasmtime.js';
-import { buildNgixiZigwin32gen } from './scripts/buildNgixi_zigwin32gen.js';
-import { buildDawn } from './scripts/buildDawn.js';
-import { buildFFmpeg } from './scripts/buildFFmpeg.js';
+import { AggregateToolError, ensureDirectory, ensureTooling, ensurePython3, checkCPUArchitecture, checkWindowsSDK, checkMSVC } from './scripts/utils/index.js';
+import { buildWasmtime } from './scripts/build-workers/buildWasmtime.js';
+import { buildNgixiZigwin32gen } from './scripts/build-workers/buildNgixi_zigwin32gen.js';
+import { buildDawn } from './scripts/build-workers/buildDawn.js';
+import { buildFFmpeg } from './scripts/build-workers/buildFFmpeg.js';
 import { getRunId, logFilePath, scopedLogger } from './scripts/logging.js';
 
 const MINIMUM_VERSIONS = {
