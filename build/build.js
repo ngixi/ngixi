@@ -10,6 +10,7 @@ import { AggregateToolError, ensureDirectory, ensureTooling, ensurePython3, chec
 import { buildWasmtime } from './scripts/buildWasmtime.js';
 import { buildNgixiZigwin32gen } from './scripts/buildNgixi_zigwin32gen.js';
 import { buildDawn } from './scripts/buildDawn.js';
+import { buildFFmpeg } from './scripts/buildFFmpeg.js';
 import { getRunId, logFilePath, scopedLogger } from './scripts/logging.js';
 
 const MINIMUM_VERSIONS = {
@@ -152,10 +153,12 @@ async function main() {
 	const ngixiZigwin32genVersion = ngixiZigwin32genConfig.defaultVersion;
 	const googleDawnConfig = buildConfig?.deps?.['google/dawn'] ?? {};
 	const googleDawnVersion = googleDawnConfig.defaultVersion;
+	const ffmpegConfig = buildConfig.deps['ffmpeg'];
+	const ffmpegVersion = argv.ffmpegVersion || ffmpegConfig?.defaultVersion;
 	ensureDirectory(GIT_TEMP_ROOT);
 
 	log.info(
-		{ mode: argv.mode, wasmtimeVersion, ngixiZigwin32genVersion, googleDawnVersion, configVersion: buildConfig.version, runId: getRunId(), logFilePath },
+		{ mode: argv.mode, wasmtimeVersion, ngixiZigwin32genVersion, googleDawnVersion, ffmpegVersion, configVersion: buildConfig.version, runId: getRunId(), logFilePath },
 		'build configuration resolved'
 	);
 
@@ -169,6 +172,10 @@ async function main() {
 
 	if (!googleDawnVersion) {
 		throw new Error('Dawn version is required but was not provided.');
+	}
+	
+	if (!ffmpegVersion) {
+		throw new Error('FFmpeg version is required but was not provided.');
 	}
 
 	let toolReports;
@@ -324,6 +331,25 @@ async function main() {
 	} catch (error) {
 		buildResults.push({ ok: false, name: 'Dawn', version: googleDawnVersion, error: error.message });
 		log.error({ err: error }, 'Dawn build failed');
+		throw error;
+	}
+
+	const ffmpegRepoPath = path.join(GIT_TEMP_ROOT, 'ffmpeg');
+	
+	log.info('building FFmpeg');
+	try {
+		const result = await buildFFmpeg({
+			config: ffmpegConfig,
+			version: ffmpegVersion,
+			gitRoot: GIT_TEMP_ROOT,
+			repoPath: ffmpegRepoPath,
+			force: argv.force
+		});
+		buildResults.push(result);
+		log.info({ ffmpegVersion }, 'FFmpeg build completed');
+	} catch (error) {
+		buildResults.push({ ok: false, name: 'FFmpeg', version: ffmpegVersion, error: error.message });
+		log.error({ err: error }, 'FFmpeg build failed');
 		throw error;
 	}
 

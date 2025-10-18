@@ -31,6 +31,16 @@ export async function buildWasmtime(options) {
   }
   
   log.info({ repoUrl: config.gitUrl, destination, version, force }, "preparing Wasmtime sources");
+  
+  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "wasmtime");
+  ensureDirectory(artifactsRoot);
+  
+  // Check if artifacts already exist (skip build unless force=true)
+  if (!force && checkWasmtimeArtifactsExist(artifactsRoot)) {
+    log.info({ artifactsRoot, version }, "Wasmtime artifacts already exist, skipping build");
+    return { ok: true, name: 'Wasmtime', version, skipped: true };
+  }
+  
   const cloneResult = cloneGitRepository({
     repoUrl: config.gitUrl,
     destination,
@@ -49,9 +59,6 @@ export async function buildWasmtime(options) {
     throw new Error(`Failed to initialize Wasmtime submodules:\n${msg}`);
   }
   log.info("git submodules initialized");
-
-  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "wasmtime");
-  ensureDirectory(artifactsRoot);
 
   const trimmedVersion = typeof version === "string" ? version.trim() : "";
   const fallbackRefs = [];
@@ -149,4 +156,37 @@ function fail(label, result) {
   const err = result.error instanceof Error ? result.error : undefined;
   log.error({ label, status: result.status, output, err }, "Wasmtime build step failed");
   throw new Error(`[wasmtime] ${label} failed${code}\n${output}`);
+}
+
+/**
+ * Check if Wasmtime artifacts already exist.
+ * Looks for key headers and libraries to determine if a build can be skipped.
+ * 
+ * @param {string} artifactsRoot - Artifacts directory
+ * @returns {boolean} True if artifacts exist and appear complete
+ */
+function checkWasmtimeArtifactsExist(artifactsRoot) {
+  const includeDir = path.join(artifactsRoot, "include");
+  const libDir = path.join(artifactsRoot, "lib");
+  
+  // Check for key headers
+  const keyHeaders = [
+    path.join(includeDir, "wasmtime.h"),
+    path.join(includeDir, "wasm.h"),
+  ];
+  
+  // Check for key libraries (Windows-specific)
+  const keyLibs = process.platform === "win32" 
+    ? [
+        path.join(libDir, "wasmtime.dll"),
+        path.join(libDir, "wasmtime.lib"),
+      ]
+    : [
+        path.join(libDir, "libwasmtime.so"),
+        path.join(libDir, "libwasmtime.a"),
+      ];
+  
+  // All key files must exist
+  const allFiles = [...keyHeaders, ...keyLibs];
+  return allFiles.every(file => fs.existsSync(file));
 }

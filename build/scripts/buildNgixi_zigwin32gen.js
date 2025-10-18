@@ -29,6 +29,16 @@ export async function buildNgixiZigwin32gen(options) {
   }
   
   log.info({ repoUrl: config.gitUrl, destination, version, force }, "preparing ngixi-zigwin32gen sources");
+  
+  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "zigwin32");
+  ensureDirectory(artifactsRoot);
+  
+  // Check if artifacts already exist (skip build unless force=true)
+  if (!force && checkZigwin32ArtifactsExist(artifactsRoot)) {
+    log.info({ artifactsRoot, version }, "zigwin32 artifacts already exist, skipping build");
+    return { ok: true, name: 'ngixi-zigwin32gen', version, skipped: true };
+  }
+  
   const cloneResult = cloneGitRepository({
     repoUrl: config.gitUrl,
     destination,
@@ -62,9 +72,6 @@ export async function buildNgixiZigwin32gen(options) {
 
   log.info({ ref: checkoutResult.ref, refType: checkoutResult.type }, "checked out ngixi-zigwin32gen reference");
 
-  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "zigwin32");
-  ensureDirectory(artifactsRoot);
-
   log.info({ artifactsRoot }, "building ngixi-zigwin32gen with zig build");
   const buildResult = runCommand("zig", ["build", "--prefix", artifactsRoot], {
     cwd: destination,
@@ -79,4 +86,21 @@ export async function buildNgixiZigwin32gen(options) {
   log.info({ artifactsRoot }, "ngixi-zigwin32gen build completed successfully");
   
   return { ok: true, name: 'ngixi-zigwin32gen', version };
+}
+
+/**
+ * Check if zigwin32 artifacts already exist.
+ * Looks for key generated files to determine if a build can be skipped.
+ * 
+ * @param {string} artifactsRoot - Artifacts directory
+ * @returns {boolean} True if artifacts exist and appear complete
+ */
+function checkZigwin32ArtifactsExist(artifactsRoot) {
+  // Check for key generated files
+  const keyFiles = [
+    path.join(artifactsRoot, "win32.zig"),
+    path.join(artifactsRoot, "build.zig"),
+  ];
+  
+  return keyFiles.every(file => fs.existsSync(file));
 }

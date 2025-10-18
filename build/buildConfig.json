@@ -12,6 +12,10 @@
         "google/dawn": {
             "defaultVersion": "v20251015.200420",
             "gitUrl": "git@github.com:google/dawn.git"
+        },
+        "ffmpeg": {
+            "defaultVersion": "n7.1.2",
+            "gitUrl": "https://git.ffmpeg.org/ffmpeg.git"
         }
     }
 }

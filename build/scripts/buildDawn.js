@@ -52,6 +52,16 @@ export async function buildDawn(options) {
   }
   
   log.info({ repoUrl: config.gitUrl, destination, version, force }, "preparing Dawn sources");
+  
+  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "dawn");
+  ensureDirectory(artifactsRoot);
+  
+  // Check if artifacts already exist (skip build unless force=true)
+  if (!force && checkDawnArtifactsExist(artifactsRoot)) {
+    log.info({ artifactsRoot, version }, "Dawn artifacts already exist, skipping build");
+    return { ok: true, name: 'Dawn', version, skipped: true };
+  }
+  
   const cloneResult = cloneGitRepository({
     repoUrl: config.gitUrl,
     destination,
@@ -63,9 +73,6 @@ export async function buildDawn(options) {
     throw new Error(`Failed to clone Dawn repository: ${msg}`);
   }
   log.info({ destination, reused: cloneResult.skipped }, "repository ready");
-
-  const artifactsRoot = path.resolve(gitRoot, "..", "artifacts", "dawn");
-  ensureDirectory(artifactsRoot);
 
   const trimmedVersion = typeof version === "string" ? version.trim() : "";
   const fallbackRefs = [];
@@ -412,4 +419,38 @@ function fail(label, result) {
   const err = result.error instanceof Error ? result.error : undefined;
   log.error({ label, status: result.status, output, err }, "Dawn build step failed");
   throw new Error(`[dawn] ${label} failed${code}\n${output}`);
+}
+
+/**
+ * Check if Dawn artifacts already exist.
+ * Looks for key headers and libraries to determine if a build can be skipped.
+ * 
+ * @param {string} artifactsRoot - Artifacts directory
+ * @returns {boolean} True if artifacts exist and appear complete
+ */
+function checkDawnArtifactsExist(artifactsRoot) {
+  const includeDir = path.join(artifactsRoot, "include");
+  const libDir = path.join(artifactsRoot, "lib");
+  
+  // Check for key headers
+  const keyHeaders = [
+    path.join(includeDir, "dawn", "webgpu.h"),
+    path.join(includeDir, "dawn", "dawn_proc_table.h"),
+    path.join(includeDir, "webgpu", "webgpu.h"),
+  ];
+  
+  // Check for libraries (Windows uses .lib, Linux/macOS use .a/.so)
+  const keyLibs = process.platform === "win32"
+    ? [path.join(libDir, "webgpu_dawn.lib")]
+    : [path.join(libDir, "libwebgpu_dawn.a")];
+  
+  // All key files must exist
+  const allFiles = [...keyHeaders, ...keyLibs];
+  const exists = allFiles.every(file => fs.existsSync(file));
+  
+  if (!exists) {
+    log.debug({ artifactsRoot, missingFiles: allFiles.filter(f => !fs.existsSync(f)) }, "Dawn artifacts incomplete or missing");
+  }
+  
+  return exists;
 }
