@@ -70,12 +70,36 @@ npm run build
 
 ## Dependencies That Will Make You Cry 😭
 
-- **Node.js** - For the build system that builds the things that build the other things
-- **Zig** - The new hotness in systems programming
-- **A Modern GPU** - Preferably one that supports Vulkan/D3D12/Metal (pick your poison)
-- **Patience** - Lots and lots of patience
-- **Coffee** - Essential for debugging WebAssembly crashes at 3 AM
-- **A Sense of Humor** - You're gonna need it
+### The Absolute Essentials (Checked by `npm run toolcheck`)
+- **Node.js 22+** - Because 21 just wasn't confusing enough
+- **Git** - For when you need to blame someone (probably yourself)
+- **CMake 3.16+** - The build system that builds build systems
+- **Cargo 1.75+** - Rust's package manager (we're building Wasmtime from source, you masochist)
+- **Zig 0.15.1** - Manual memory management for those who miss segfaults
+- **Clang 12+** - C++20 support required (because C++11 was too easy)
+- **Ninja 1.12+** - Fast builds (you'll still wait hours)
+- **Go 1.23+** - Yes, we need Go too (Dawn's build system is... special)
+- **depot_tools** - Google's magical build tools (contains `gclient`, good luck)
+- **Python 3.11+** - For all those build scripts that could've been shell scripts
+
+### Windows-Specific Nightmares (Auto-detected on Windows)
+- **Windows SDK 10.0.22631+** - Because older SDKs just won't cut it
+- **MSVC 19.41+ / Visual Studio 2022 v17.11+** - Microsoft's C++ compiler with all the ATL/MFC goodness
+- **x64 Architecture** - ARM64? Not today, friend
+
+### What We're Actually Building
+- **Wasmtime** - WebAssembly runtime (from source, because pain builds character)
+- **Dawn** - Google's WebGPU implementation (timestamp versioning is their love language)
+- **FFmpeg** - Multimedia Swiss Army chainsaw (prepare for a 30-minute build)
+- **zigwin32gen** - Win32 bindings generator (because someone has to)
+
+### Optional But Highly Recommended
+- **pyenv** - For when your system Python is too old (or too new)
+- **A Modern GPU** - Vulkan/D3D12/Metal support (your iGPU is crying already)
+- **Coffee** - Industrial strength recommended
+- **A Sense of Humor** - Non-negotiable
+- **Patience** - Measured in geological epochs
+- **SSD** - HDD users: godspeed o7
 
 ## What Works ✅
 
