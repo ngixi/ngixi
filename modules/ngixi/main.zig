@@ -136,7 +136,6 @@ pub fn main() !void {
         if (!function_called) {
             std.debug.print("ℹ️  No exported functions found to call\n", .{});
         }
-
     } else {
         std.debug.print("❌ This is not a WASI module\n", .{});
     }
