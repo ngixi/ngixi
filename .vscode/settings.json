@@ -9,9 +9,7 @@
     "**/bin": false,
     "**/obj": true,
     "**/.nuget": true,
-    "**/package-lock.json": true,
-    "**/.gitattributes": true,
-    "**/.gitmodules": true,
+    "**/package-lock.json": true
   },
   "explorer.fileNesting.enabled": true,
   "search.exclude": {
