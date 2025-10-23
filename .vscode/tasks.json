@@ -1,0 +1,76 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "zig build",
+            "type": "shell",
+            "command": "zig",
+            "args": ["build"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$zig"
+        },
+        {
+            "label": "zig build ngixi",
+            "type": "shell",
+            "command": "zig",
+            "args": ["build", "ngixi"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$zig"
+        },
+        {
+            "label": "zig test",
+            "type": "shell",
+            "command": "zig",
+            "args": ["build", "test"],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$zig"
+        },
+        {
+            "label": "zig run",
+            "type": "shell",
+            "command": "zig",
+            "args": ["build", "run"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": "$zig"
+        },
+        {
+            "label": "zig clean",
+            "type": "shell",
+            "command": "Remove-Item",
+            "args": ["-Recurse", "-Force", "zig-out"],
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            }
+        }
+    ]
+}
