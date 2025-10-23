@@ -10,7 +10,8 @@
     "**/obj": true,
     "**/.nuget": true,
     "**/package-lock.json": true,
-    "**/.gitattributes": true
+    "**/.gitattributes": true,
+    "**/.gitmodules": true,
   },
   "explorer.fileNesting.enabled": true,
   "search.exclude": {

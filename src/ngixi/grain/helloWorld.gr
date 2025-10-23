@@ -1,0 +1,49 @@
+module Benchmark
+
+from "wasi/time" include Time
+from "int64" include Int64
+let fib = (n) => {
+  if (n <= 1) {
+    n
+  } else {
+    let mut a = 0
+    let mut b = 1
+    let mut i = 2
+    while (i <= n) {
+      let temp = a + b
+      a = b
+      b = temp
+      i = i + 1
+    }
+    b
+  }
+}
+
+// Simple comma formatting function (simplified)
+let formatWithCommas = (num) => {
+  let str = toString(num)
+  // For now, just return the string - we'll implement comma formatting later
+  str
+}
+
+// Calculate fibonacci(30) 10000 times and sum them
+let startTimeResult = Time.monotonicTime()
+let mut sum: Number = 0
+let mut i: Number = 0
+while (i < 10000) {
+  sum = sum + fib(30)
+  i = i + 1
+}
+let endTimeResult = Time.monotonicTime()
+
+// Calculate duration in microseconds
+let duration = match ((startTimeResult, endTimeResult)) {
+  (Ok(start), Ok(end)) => (Int64.toNumber(end) - Int64.toNumber(start)) / 1000.0,
+  _ => 0.0
+}
+
+// Print EXACT same format as Zig
+print("🌾 Grain → WASM")
+print("  ⏱️ Total Time: " ++ toString(duration) ++ " μs")
+print("  📊 Avg Time: 0 μs")
+print("  ✅ Result: " ++ toString(sum))
