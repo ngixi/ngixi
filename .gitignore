@@ -47,8 +47,3 @@ out/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Submodules
-modules/wasmtime/
-modules/depot_tools/
-modules/wasmer-zig-api/

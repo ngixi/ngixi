@@ -1,13 +1,13 @@
 [submodule "modules/wasmer-zig-api"]
-    path = modules/wasmer-zig-api
-    url = git@github.com:ngixi/wasmer-zig-api.git
+	path = modules/wasmer-zig-api
+	url = git@github.com:ngixi/wasmer-zig-api.git
 
 [submodule "modules/depot_tools"]
-    path = modules/depot_tools
-    url = https://chromium.googlesource.com/chromium/tools/depot_tools.git
+	path = modules/depot_tools
+	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git
     ignore = all
 
 [submodule "modules/wasmtime"]
-    path = modules/wasmtime
-    url = https://github.com/bytecodealliance/wasmtime
+	path = modules/wasmtime
+	url = https://github.com/bytecodealliance/wasmtime
     ignore = all
