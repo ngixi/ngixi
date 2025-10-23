@@ -61,23 +61,24 @@ pub fn build(b: *std.Build) void {
     exe.linkLibC();
     exe.linkLibCpp();
     exe.addLibraryPath(.{ .cwd_relative = "C:\\tools\\binaries\\wasmer\\lib" });
-    exe.addLibraryPath(.{ .cwd_relative = "C:\\tools\\mingw64\\lib" });
-    exe.addObjectFile(.{ .cwd_relative = "C:\\tools\\binaries\\wasmer\\lib\\libwasmer.a" });
+    exe.linkSystemLibrary("wasmer");
 
     // Link required Windows system libraries
-    exe.linkSystemLibrary("ws2_32");
-    exe.linkSystemLibrary("advapi32");
-    exe.linkSystemLibrary("userenv");
-    exe.linkSystemLibrary("bcrypt");
-    exe.linkSystemLibrary("gcc_s");
-    exe.linkSystemLibrary("gcc");
-    exe.linkSystemLibrary("pthread");
+    // exe.linkSystemLibrary("ws2_32");
+    // exe.linkSystemLibrary("advapi32");
+    // exe.linkSystemLibrary("userenv");
+    // exe.linkSystemLibrary("bcrypt");
+    // exe.linkSystemLibrary("pthread");
 
     // This declares intent for the executable to be installed into the
-    // install prefix when running `zig build` (i.e. when executing the default
-    // step). By default the install prefix is `zig-out/` but can be overridden
+    // install prefix when running `zig build` (i.e. when executing the default step).
+    // By default the install prefix is `zig-out/` but can be overridden
     // by passing `--prefix` or `-p`.
     b.installArtifact(exe);
+
+    // Copy the wasmer DLL to the output directory
+    const wasmer_dll = b.addInstallFile(.{ .cwd_relative = "C:\\tools\\binaries\\wasmer\\lib\\wasmer.dll" }, "bin/wasmer.dll");
+    b.getInstallStep().dependOn(&wasmer_dll.step);
 
     // This creates a top level step. Top level steps have a name and can be
     // invoked by name when running `zig build` (e.g. `zig build run`).
