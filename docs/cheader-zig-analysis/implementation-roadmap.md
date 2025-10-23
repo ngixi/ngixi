@@ -1,5 +1,42 @@
 # Implementation Roadmap
 
+## ⚠️ CRITICAL IMPLEMENTATION NOTES - DO NOT FUCK THIS UP ⚠️
+
+### What We're Building
+- **Zig wrapper for Wasmer C API** - We provide Zig bindings but still need external C library linking
+- **NOT building Wasmer itself** - Just the Zig interface to the existing C API
+- **Zig 0.15.2 ONLY** - All APIs must be compatible with this version
+
+### Build Architecture
+- **Root build**: Uses `wasmer-zig-api` as direct module import + links to external Wasmer C libraries
+- **wasmer-zig-api build.zig**: Only needed for standalone examples/tests - DO NOT MODIFY unless absolutely necessary (broken for Zig 0.15.2)
+- **External dependencies**: WASMER_DIR environment variable points to pre-built Wasmer C libraries
+
+### Current Status
+- ✅ **Section 1.1 - Type System Setup**: COMPLETED - `types.zig` created, extern declarations added, error handling implemented, allocator integration done
+- 🔄 **Section 1.2 - Core Types**: IN PROGRESS - Need to implement Config, Engine, Store methods with proper initialization/deinitialization
+
+### Error Prevention Checklist
+- [ ] Using Zig 0.15.2 APIs (not older versions)
+- [ ] External WASMER_DIR set for C library linking
+- [ ] Building from root directory (not wasmer-zig-api subdirectory)
+- [ ] Not modifying wasmer-zig-api/build.zig unless absolutely necessary
+- [ ] Testing build after every significant change
+
+### Build Commands
+```bash
+# Test the build (from root directory)
+zig build
+
+# Build with examples (if needed)
+zig build -Dexamples=true
+
+# Run tests
+zig build test
+```
+
+---
+
 ## Phase 1: Foundation (Week 1-2)
 
 ### 1.1 Type System Setup
