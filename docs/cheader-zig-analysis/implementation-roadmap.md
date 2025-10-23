@@ -40,16 +40,16 @@ zig build test
 ## Phase 1: Foundation (Week 1-2)
 
 ### 1.1 Type System Setup
-- [ ] Create `types.zig` with all opaque type definitions
-- [ ] Add all extern declarations from C headers
-- [ ] Implement basic error set
-- [ ] Set up allocator integration
+- [x] Create `types.zig` with all opaque type definitions
+- [x] Add all extern declarations from C headers
+- [x] Implement basic error set
+- [x] Set up allocator integration
 
 ### 1.2 Core Types Implementation
-- [ ] Complete `Config` with all methods
-- [ ] Complete `Engine` functionality
-- [ ] Complete `Store` operations
-- [ ] Fix `Func.call` implementation
+- [x] Complete `Config` with all methods
+- [x] Complete `Engine` functionality
+- [x] Complete `Store` operations
+- [x] Fix `Func.call` implementation
 
 ### 1.3 Memory Management
 - [ ] Implement RAII patterns
