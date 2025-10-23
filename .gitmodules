@@ -1,0 +1,6 @@
+[submodule "modules/wasmer-zig-api"]
+	path = modules/wasmer-zig-api
+	url = git@github.com:ngixi/wasmer-zig-api.git
+[submodule "modules/wasmer-source"]
+	path = modules/wasmer-source
+	url = https://github.com/wasmerio/wasmer

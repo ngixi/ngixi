@@ -1,6 +1,6 @@
 # Zig
-zig-cache/
-zig-out/
+**/.zig-cache/
+**/zig-out/
 build/artifacts
 **/.logs/
 # Rust
