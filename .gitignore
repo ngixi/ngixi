@@ -50,3 +50,5 @@ out/
 
 # Submodules
 modules/wasmtime/
+modules/depot_tools/
+modules/wasmer-zig-api/
