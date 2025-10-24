@@ -11,3 +11,6 @@
 	path = modules/wasmtime
 	url = https://github.com/bytecodealliance/wasmtime
     ignore = all
+[submodule "modules/libmdbx-zig"]
+	path = modules/libmdbx-zig
+	url = git@github.com:ngixi/libmdbx-zig.git

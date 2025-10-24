@@ -21,7 +21,7 @@
   "explorer.fileNesting.patterns": {
     "tsconfig.json": "tsconfig.*.json",
     "*.json": "${capture}.Development.json",
-    ".collapseable": ".editorconfig, .gitignore, .gitmodules, .prettierrc, agents.md, LICENSE"
+    ".collapseable": ".editorconfig, .gitignore, .gitmodules, .prettierrc, agents.md, LICENSE, .python-version, README.md"
   },
   "terminal.integrated.env.windows": {
     "WASMTIME_CRANELIFT_FLAGS": "use_sse4_1 use_sse4_2 use_popcnt use_lzcnt use_bmi1 use_bmi2 use_fma use_avx use_avx2 use_avx512f use_avx512dq use_avx512vl enable_pinned_reg opt_level=best",
