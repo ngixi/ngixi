@@ -3,7 +3,7 @@ const std = @import("std");
 pub var module: ?*std.Build.Module = null;
 pub var lib_path: ?[]const u8 = null;
 
-pub fn init(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode, submodule_step: *std.Build.Step) !void {
+pub fn init(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode, submodule_step: ?*std.Build.Step) !void {
     const wasmer_path_env = std.process.getEnvVarOwned(b.allocator, "NGIXI_WASMER_PATH") catch {
         std.log.err("NGIXI_WASMER_PATH environment variable not set", .{});
         return error.EnvVarNotSet;
@@ -41,7 +41,9 @@ pub fn init(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.built
     const lib_path_alloc = std.fs.path.join(b.allocator, &.{ lib_dir, lib_name }) catch unreachable;
 
     const install_lib = b.addInstallFile(.{ .cwd_relative = lib_path_alloc }, b.fmt("bin/{s}", .{lib_name}));
-    install_lib.step.dependOn(submodule_step);
+    if (submodule_step) |step| {
+        install_lib.step.dependOn(step);
+    }
     b.getInstallStep().dependOn(&install_lib.step);
 
     module = wasmerModule;
