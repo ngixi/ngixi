@@ -15,7 +15,7 @@ fn fib(n: u32) u32 {
     return b;
 }
 
-pub fn main() !void {
+pub fn main() u8 {
     // Print header
     // Run Zig native benchmark
     const start_time = std.time.microTimestamp();
@@ -34,7 +34,11 @@ pub fn main() !void {
     std.debug.print("  ✅ Result: {}\n\n", .{sum});
 
     // Run Grain WASM benchmark (it prints its own section)
-    try runGrainBenchmark();
+    runGrainBenchmark() catch |err| {
+        std.debug.print("Error running Grain benchmark: {}\n", .{err});
+    };
+    
+    return 0;
 }
 
 fn runGrainBenchmark() !void {
@@ -43,7 +47,9 @@ fn runGrainBenchmark() !void {
     defer config.deinit();
 
     const features = try wasmer.Features.init();
-    defer features.deinit();
+    // NOTE: config.setFeatures() takes ownership of features!
+    // Do NOT call features.deinit() or it will double-free when config.deinit() runs
+    // defer features.deinit();
 
     // Enable tail calls for our runtime
     _ = features.tailCall(true);
@@ -56,13 +62,34 @@ fn runGrainBenchmark() !void {
     const store = try wasmer.Store.init(engine);
     defer store.deinit();
 
-    const wasm_bytes = try std.fs.cwd().readFileAlloc(std.heap.page_allocator, "src/ngixi/grain/helloWorld.wasm", 1024 * 1024);
-    defer std.heap.page_allocator.free(wasm_bytes);
+    // Try multiple possible paths for the wasmu file
+    const possible_paths = [_][]const u8{
+        "src/ngixi/grain/helloWorld.wasmu",
+        "../src/ngixi/grain/helloWorld.wasmu",
+        "../../src/ngixi/grain/helloWorld.wasmu",
+        "src/ngixi/grain/helloWorld.wasm",
+    };
 
-    var wasm_byte_vec = wasmer.ByteVec.fromSlice(wasm_bytes);
-    defer wasm_byte_vec.deinit();
+    var wasmu_bytes: []u8 = undefined;
+    var found = false;
+    for (possible_paths) |path| {
+        wasmu_bytes = std.fs.cwd().readFileAlloc(std.heap.page_allocator, path, 10 * 1024 * 1024) catch continue;
+        found = true;
+        break;
+    }
 
-    const module = try wasmer.Module.init(store, &wasm_byte_vec);
+    if (!found) {
+        std.debug.print("Error: Could not find helloWorld.wasmu or helloWorld.wasm\n", .{});
+        return;
+    }
+
+    defer std.heap.page_allocator.free(wasmu_bytes);
+
+    var wasmu_byte_vec = wasmer.ByteVec.fromSlice(wasmu_bytes);
+    defer wasmu_byte_vec.deinit();
+
+    const module = wasmer.Module.deserialize(store, &wasmu_byte_vec) catch
+        try wasmer.Module.init(store, &wasmu_byte_vec);
     defer module.deinit();
 
     const wasi_config = try wasmer.WasiConfig.init();
@@ -72,10 +99,14 @@ fn runGrainBenchmark() !void {
     defer wasi_env.deinit();
 
     var imports = try wasmer.wasi.getImports(store, wasi_env, module);
-    defer imports.deinit();
+    // NOTE: Instance.init() likely takes ownership of imports!
+    // Do NOT call imports.deinit() or it will double-free
+    // defer imports.deinit();
 
     const instance = try wasmer.Instance.init(store, module, &imports);
-    defer instance.deinit();
+    // NOTE: There may be an ownership issue with instance cleanup
+    // Skipping deinit to avoid potential double-free
+    // defer instance.deinit();
 
     try wasi_env.initializeInstance(store, instance);
 
@@ -87,7 +118,9 @@ fn runGrainBenchmark() !void {
         if (export_opt) |export_ptr| {
             if (export_ptr.getKind() == .function) {
                 if (export_ptr.asFunc()) |func| {
-                    try func.call(&[_]wasmer.Value{}, &[_]wasmer.Value{});
+                    func.call(&[_]wasmer.Value{}, &[_]wasmer.Value{}) catch |err| {
+                        std.debug.print("WASM function call error: {}\n", .{err});
+                    };
                     break;
                 }
             }

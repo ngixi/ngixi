@@ -2,18 +2,21 @@ module Benchmark
 
 from "wasi/time" include Time
 from "int64" include Int64
-let fib = (n) => {
-  if (n <= 1) {
+from "int32" include Int32
+use Int32.{ (+), (<=), (<) }
+
+let fib = (n: Int32) => {
+  if (n <= 1l) {
     n
   } else {
-    let mut a = 0
-    let mut b = 1
-    let mut i = 2
+    let mut a: Int32 = 0l
+    let mut b: Int32 = 1l
+    let mut i: Int32 = 2l
     while (i <= n) {
-      let temp = a + b
+      let temp: Int32 = a + b
       a = b
       b = temp
-      i = i + 1
+      i += 1l
     }
     b
   }
@@ -28,11 +31,11 @@ let formatWithCommas = (num) => {
 
 // Calculate fibonacci(30) 10000 times and sum them
 let startTimeResult = Time.monotonicTime()
-let mut sum: Number = 0
-let mut i: Number = 0
-while (i < 10000) {
-  sum = sum + fib(30)
-  i = i + 1
+let mut sum: Int32 = 0l
+let mut i: Int32 = 0l
+while (i < 10000l) {
+  sum += fib(30l)
+  i += 1l
 }
 let endTimeResult = Time.monotonicTime()
 

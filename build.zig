@@ -23,6 +23,8 @@ pub fn build(b: *std.Build) !void {
     // --- Run target ---
     const run_step = b.step("run", "Run ngixi app");
     const run_cmd = b.addRunArtifact(NgixiExe.exe.?);
+    run_cmd.setCwd(b.path("."));
+    run_cmd.step.dependOn(b.getInstallStep());
     run_step.dependOn(&run_cmd.step);
     if (b.args) |args| run_cmd.addArgs(args);
 
